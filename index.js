@@ -19,10 +19,15 @@ var socket_server = new WebSocketServer({server: server, path:"/chat"});
 //From each individual
 var chat_logs = [
     {
-        john: "Hey Bill"
+        name : "john", 
+        content: "Hey bill",
+        id : 0,
+
     },
     {
-        bill : "How ya doing john?"
+        name : "bill",
+        content : "How ya doing john?",
+        id : 1,
     },
 ]
 
@@ -36,12 +41,17 @@ socket_server.on("connection", function (ws) {
     }*/
     socket_server.on('message', function (message) {
         var formatted_message = JSON.parse(message);
-        chat_logs.push (formatted_message);
+        var message_object = {
+            name : formatted_message.name,
+            content : formatted_message.content,
+            id : chat_logs.length,
+        }
+        chat_logs.push(message_object);
 
         //Now, broadcast to all connected clients
         socket_server.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
-              client.send(message);
+              client.send(JSON.stringify(message_object));
             }
         });
     })
